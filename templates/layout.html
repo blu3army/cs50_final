@@ -1,0 +1,26 @@
+{% extends "navbar.html" %}
+
+{% block layout %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/output.css')}}">
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+    
+    <nav>
+        {% block navbar %}{{super()}}{% endblock %}
+    </nav>
+
+    <main class="mx-auto max-w-2xl bg-lime-100 p-5">
+        {% block main %}{% endblock %}
+    </main>
+
+</body>
+</html>
+
+{% endblock %}

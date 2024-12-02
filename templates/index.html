@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Home 
+{% endblock %}
+
+{% block main %}
+
+    <h1 class="text-6xl">Home page</h1>
+
+    {% if username %}
+        <p>
+            User: <b>{{username}}</b>
+        </p>
+    {% endif %}
+
+{% endblock %}
