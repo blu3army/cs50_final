@@ -1,9 +1,28 @@
 
 {% block layout %}
     {% block navbar %}
-        <p class="text-3xl">
-            Photofy navbar
+    <div class="flex max-w-4xl  h-full mx-auto items-center">
+        
+        
+        <p class="text-3xl flex-grow">
+            <a href="/" class="flex items-center">
+                <img src="/static/images/icons8-pila-de-fotos-96.png" class="w-12 mr-2">
+                <span class="font-semibold">
+                    Photofy 
+                </span>
+            </a>
         </p>
+
+        {% if username %}
+            <a href="/photo_upload" class="p-2 bg-orange-200 font-semibold mx-2">Upload</a>
+            <a href="/sign_out" class="p-2 bg-rose-200 font-semibold mx-2">Sign out</a>
+        {% else %}
+            <a href="/sign_in" class="p-2 bg-rose-200 font-semibold mx-2">Sign in</a>
+            <a href="/sign_up" class="p-2 bg-rose-200 font-semibold mx-2">Sign up</a>
+        {% endif %}
+        
+        
+    </div>
     {% endblock %}
 
 {% endblock %}

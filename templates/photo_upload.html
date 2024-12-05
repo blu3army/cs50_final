@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Photo upload 
+{% endblock %}
+
+{% block main %}
+
+    <form method="POST" action="/photo_upload" enctype="multipart/form-data">
+        <h1 class="text-3xl">Photo upload</h1>
+
+        <div id="photo-btn" class="w-10/12 bg-slate-400">
+            <span>
+                Add
+            </span>
+        </div>
+
+        <input id="photo-input" type="file" name="photo" style="display: none;">
+
+        <button class="px-10 py-2 font-semibold bg-blue-300 rounded-md">
+            UPLOAD
+        </button>
+
+    </form>
+
+    <script>
+
+        const photoBtn =  document.getElementById('photo-btn');
+        const photoInput =  document.getElementById('photo-input');
+
+        photoBtn.addEventListener('click', ()=>{
+            photoInput.click();
+        });
+
+        photoInput.addEventListener('change', (event)=>{
+            const file = event.target.files[0];
+            console.log(file);
+        });
+
+    </script>
+
+{% endblock %}

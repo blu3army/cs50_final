@@ -1,5 +1,6 @@
 from flask import Flask, session, render_template, redirect, request, jsonify
-from database import init_tables, check_tables, create_user, users
+from database.users import init_tables, users_db
+from services.supabase_init import supabase
 
 app = Flask(__name__)
 
@@ -17,9 +18,15 @@ def index():
     else:
         return render_template('index.html')
 
+
+
+# LOGIN SYSTEM
+
 @app.route("/sign_up", methods=['GET', 'POST'])
 def sign_up():
 
+    # Sign out, by the way
+    session.pop('id', None)
     session.pop('username', None)
     
     if request.method == 'GET':
@@ -33,29 +40,105 @@ def sign_up():
         # Chequeamos si no existe username
 
         # Chequeamos que ambos passwords sean iguales
+        res = users_db.create_user(username, password)
+        users_db.close()
+        # Create user
+        if res:
+            # Get the user's ID for session
+            res = users_db.user_by_username(username)
+            users_db.close()
+
+            session['id'] = res[0]
+            session['username'] = res[3]
+            return redirect("/")
+        else:
+            return redirect("/sign_up")
         
-        create_user(username, password)
-
-        return redirect("/")
 
 
-@app.route("/api/users")
-def get_users():
-    res = users()
-    print(res)
-    return jsonify({'message': res[0]})
+@app.route("/sign_in", methods=['GET', 'POST'])
+def sign_in():
 
+    # Sign out, by the way
+    session.pop('id', None)
+    session.pop('username', None)
+    
+    if request.method == 'GET':
+        return render_template("sign_in.html")
+    else:
 
+        username = request.form['username']
+        password = request.form['password']
 
-@app.route("/login", methods=['GET', 'POST'])
-def login():
-    session['username'] = 'nikolai10'
+        res = users_db.user_by_username_password(username, password)
 
-    return redirect("/")
+        users_db.close()
+
+        if res:
+            session['id'] = res[0]
+            session['username'] = res[3]
+
+            return redirect('/') 
+        else:
+            return redirect('/sign_in')
 
 
 @app.route("/sign_out")
 def logout():
+    session.pop('id', None)
     session.pop('username', None)
     
     return redirect("/")
+
+
+# PHOTO UP
+@app.route("/photo_upload", methods = ['GET', 'POST', 'DELETE'])
+def photo():
+
+    # Check if user is logged
+    if not session['id']:
+        return redirect('/')
+
+    if request.method == 'GET':
+        return render_template('/photo_upload.html')
+    else:
+        # En caso de hacer POST
+        file = request.files['photo']
+        #caption = request.form['caption']
+
+        print(file)
+
+        # supabase.storage.from_('photos').upload(
+        #     file=file.stream,
+        #     path="aslasdga.jpg"
+        # )
+
+        return redirect('/')
+
+
+
+
+
+
+
+
+@app.route("/api/users")
+def get_users():
+    res = users_db.users()
+    users_db.close()
+    print(res)
+    return jsonify({'users': res})
+
+
+@app.route("/api/user_by_username/<username>")
+def get_user(username):
+    res = users_db.user_by_username(username)
+    users_db.close()
+    print(res)
+    return jsonify({'message': res})
+
+
+
+
+
+

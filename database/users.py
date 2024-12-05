@@ -1,5 +1,58 @@
 import sqlite3
 
+
+class UsersDB():
+    DATABASE = 'database/photofy.db'
+
+    def connect(self):
+        self.con = sqlite3.connect(self.DATABASE)
+        self.cur = self.con.cursor()
+
+    def close(self):
+        self.cur.close()
+        self.con.close()
+
+    def create_user(self, username, password):
+        self.connect()
+
+        if not username or not password:
+        
+            return False
+        else:
+       
+            self.cur.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, password))
+            self.con.commit()
+            
+            # rowcount es 1 en caso de inserción exitosa
+            return self.cur.rowcount > 0
+        
+
+    def users(self):
+        self.connect()
+        res = self.cur.execute('SELECT * FROM users')
+    
+        return res.fetchall()
+    
+    def user_by_username(self, username):
+        self.connect()
+        
+        res = self.cur.execute('SELECT * FROM users WHERE username = ?', (username,))
+
+        return res.fetchone()
+
+    def user_by_username_password(self, username, password):
+        self.connect()
+        
+        res = self.cur.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password,))
+
+        return res.fetchone()
+        
+
+
+users_db = UsersDB()
+
+
+
 DATABASE = 'photofy.db'
 
 def check_tables():
@@ -10,22 +63,8 @@ def check_tables():
     con.close()
 
 
-def create_user(username, password):
-    if not username or not password:
-        return False
-    else:
-        con = sqlite3.connect(DATABASE)
-        cur = con.cursor()
-        res = cur.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, password))
-        con.commit()
-        con.close()
 
-def users():
-    con = sqlite3.connect(DATABASE)
-    cur = con.cursor()
-    res = cur.execute('SELECT * FROM users;')
-   
-    return res.fetchall()
+
 
 
 def init_tables():
