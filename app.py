@@ -1,6 +1,12 @@
 from flask import Flask, session, render_template, redirect, request, jsonify
 from database.users import init_tables, users_db
 from services.supabase_init import supabase
+from database.photos import photos_db
+from database.hashtags import hashtags_db
+from database.likes import likes_db
+import re
+import uuid
+
 
 app = Flask(__name__)
 
@@ -13,10 +19,10 @@ init_tables()
 
 @app.route("/")
 def index():
-    if 'username' in session:
-        return render_template('index.html', username=session['username'])
-    else:
-        return render_template('index.html')
+    
+    photos = photos_db.find()
+
+    return render_template('index.html', session=session, photos=photos)
 
 
 
@@ -92,32 +98,116 @@ def logout():
 
 
 # PHOTO UP
-@app.route("/photo_upload", methods = ['GET', 'POST', 'DELETE'])
-def photo():
+@app.route("/photo_new", methods = ['GET', 'POST', 'DELETE'])
+def photo_new():
 
     # Check if user is logged
     if not session['id']:
         return redirect('/')
 
     if request.method == 'GET':
-        return render_template('/photo_upload.html')
+        return render_template('/photo_new.html', session=session)
     else:
-        # En caso de hacer POST
-        file = request.files['photo']
-        #caption = request.form['caption']
 
-        print(file)
+        if not session["id"]:
+            return "You need to been logged"
 
-        # supabase.storage.from_('photos').upload(
-        #     file=file.stream,
-        #     path="aslasdga.jpg"
-        # )
+        # Photo url     
+        url = request.form['url']  
+        # Caption
+        caption = request.form['caption'] or None
 
-        return redirect('/')
+        hashtags = list(map( 
+            lambda tag: tag.strip()[1:], # Put down the # character  
+            re.findall(r'\s*#[\w\d-]+\s*', f" {caption} ")
+        ))
+
+        # Create hashtags if doesn't exist
+        success_list = hashtags_db.insert_many(hashtags[:10]) # MAXIMO 10 HASHTAGS
+        hashtags_db.close()
+
+        # Create photo post
+        photo_id = photos_db.create_photo(url, caption, session["id"])
+        photos_db.close()
+
+        # Get hashtags ids
+        hashtags_ids = hashtags_db.get_hashtags_ids(hashtags)
+
+        # Create relation between photo and hashtags
+        relation_ids = hashtags_db.create_photo_hashtags(photo_id, set(hashtags_ids))
+
+        hashtags_db.close()
+
+        print(
+            jsonify({
+                "url": url,
+                "caption": caption,
+                "photo_id": photo_id,
+                "hashtags": hashtags,
+                "new hashtags": success_list,
+                "hashtags ids": hashtags_ids,
+                "relations ids": relation_ids,
+                #"hashtags": hashtags
+            })
+        )
+
+        return redirect(f'/photo/{photo_id}')
 
 
+       
+
+@app.route('/photo_upload', methods = ['POST'])
+def photo_upload():
+
+    if not 'file' in request.files:
+        return "There's no file"
+        
+    file = request.files['file']
+
+    if file.filename == '':
+        return "We need a file to be provided"
+
+    # Give file an unique filename
+    filename = uuid.uuid4().hex #secure_filename(file.filename)
+    # Get from FileStorage
+    file_contents = file.read()
 
 
+    try:
+        #file.save(filename)
+        response = supabase.storage.from_('photos').upload(
+            path=filename,
+            file=file_contents,
+            file_options={
+                'content-type': file.mimetype
+            }
+        )
+        
+        url = supabase.storage.from_('photos').get_public_url(response.path)       
+        
+        return jsonify({
+            "msg": "file upload successful", 
+            "url": url
+        })
+      
+
+    except Exception as e:
+        return f"Error uploading file: {str(e)}"
+
+    
+
+# LIKES
+@app.route('/like_it/<photo_id>', methods = ['GET'])
+def like_it(photo_id):
+
+    if not 'id' in session:
+        return "You need to be logged"
+    
+    user_id = session['id']
+
+    id = likes_db.like_it(user_id, photo_id)
+
+    return jsonify({"id": id, "msg": f"Created ok user {user_id}, photo {photo_id}"})
 
 
 

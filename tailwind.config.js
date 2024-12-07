@@ -3,7 +3,14 @@ module.exports = {
     "./templates/**/*.html",
   ],
   theme: {
-    extend: {},
+    extend: {
+      width: {
+        'img': '320px'
+      },
+      height: {
+        'img': '320px'
+      }
+    },
   },
   plugins: [],
 }

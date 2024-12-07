@@ -53,7 +53,7 @@ users_db = UsersDB()
 
 
 
-DATABASE = 'photofy.db'
+DATABASE = 'database/photofy.db'
 
 def check_tables():
     con = sqlite3.connect(DATABASE)

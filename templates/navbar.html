@@ -13,12 +13,12 @@
             </a>
         </p>
 
-        {% if username %}
-            <a href="/photo_upload" class="p-2 bg-orange-200 font-semibold mx-2">Upload</a>
-            <a href="/sign_out" class="p-2 bg-rose-200 font-semibold mx-2">Sign out</a>
+        {% if session["id"] %}
+            <a href="/photo_new" class="p-2 bg-orange-200 font-semibold mx-2 rounded-md">Upload</a>
+            <a href="/sign_out" class="p-2 bg-rose-200 font-semibold mx-2 rounded-md">Sign out</a>
         {% else %}
-            <a href="/sign_in" class="p-2 bg-rose-200 font-semibold mx-2">Sign in</a>
-            <a href="/sign_up" class="p-2 bg-rose-200 font-semibold mx-2">Sign up</a>
+            <a href="/sign_in" class="p-2 bg-rose-200 font-semibold mx-2 rounded-md">Sign in</a>
+            <a href="/sign_up" class="p-2 bg-rose-200 font-semibold mx-2 rounded-md">Sign up</a>
         {% endif %}
         
         

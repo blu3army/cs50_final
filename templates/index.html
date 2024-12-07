@@ -5,13 +5,79 @@
 {% endblock %}
 
 {% block main %}
+   
+    
+    <div class="flex">
 
-    <h1 class="text-6xl">Home page</h1>
+        <div class="flex flex-grow">
+            
+            <!-- ORDER -->
+            <select class="text-sm p-2 rounded-md bg-white-100 border border-purple-300 outline-none">
+                <option>Recently</option>
+                <option>Most liked</option>
+            </select>
+            
+            <!-- TREND TIME -->
+            <select class="text-sm p-2 rounded-md bg-white-100 border border-purple-300 outline-none ml-2">
+                <option>Weekly</option>
+                <option>Monthly</option>
+                <option>Yearly</option>
+                <option>All times</option>
+            </select>
+        </div>
 
-    {% if username %}
-        <p>
-            User: <b>{{username}}</b>
-        </p>
-    {% endif %}
+
+        <!-- FILTER -->
+        <input class="text-sm p-2 rounded-md bg-white-100 border border-purple-300 outline-none" type="text" placeholder="🔍 Search by hashtag">
+
+    </div>
+
+    
+
+    <ul class="py-5">
+        {% for photo in photos %}
+            <li class="mb-10 bg-white">
+                <div class="aspect-ratio-container">
+                    <img src={{photo[2]}} class="object-cover rounded-lg">
+                </div>
+                
+                <div class="p-2 flex justify-between items-center">
+                    <button class="bg-purple-100 p-2 like-button" data-photo={{photo[0]}}>
+                        Like it 0
+                    </button>
+                    <span>
+                        {{photo[1]}}
+                    </span>
+                </div>
+
+                <div class="p-2">
+                    {{photo[3]}}
+                </div>
+
+            </li>
+        {% endfor %}
+    </ul>
+
+
+    <script defer>
+
+        const likeButtons = document.querySelectorAll('.like-button');
+
+        for(const btn of likeButtons){
+            btn.addEventListener('click', ()=>{
+                console.log("Like it!", btn.dataset.photo);
+
+                fetch(`/like_it/${btn.dataset.photo}`)
+                    .then( response => {
+                        return response.json()
+                    })
+                    .then( data => {
+                        console.log(data);
+                    });
+
+            });
+        }
+      
+    </script>
 
 {% endblock %}

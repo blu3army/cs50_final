@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Photo upload 
+{% endblock %}
+
+{% block main %}
+
+    <form method="POST" action="/photo_new" enctype="multipart/form-data" class="pb-10">
+        
+        <h1 class="text-3xl text-center">Photo upload</h1>
+        
+        <div id="photo-btn" class="aspect-ratio-container mt-2">
+            <div id="add-span" class=" bg-stone-200 border border-dashed border-stone-600 cursor-pointer rounded-lg flex items-center justify-center text-6xl">
+                +
+            </div>
+            <img id="photo-img" src="" class="object-cover rounded-lg" style="display: none;" >
+        </div>
+
+        <div>
+            <textarea placeholder="Add a caption" name="caption" class="w-full mt-2 outline-none p-2 rounded-lg" style="resize: none; height: 160px;" ></textarea>
+        </div>
+
+        <input id="photo-input" type="file" name="file" style="display: none;">
+
+        <div class="text-center mt-5">
+            <button class="px-20 py-2 font-semibold bg-blue-300 rounded-md">
+                UPLOAD
+            </button>
+        </div>
+
+        <input id="url-input" type="hidden" name="url">
+
+    </form>
+
+    <script>
+
+        const photoBtn =  document.getElementById('photo-btn');
+        const photoInput =  document.getElementById('photo-input');
+        const addSpan = document.getElementById('add-span');
+        const photoImg = document.getElementById('photo-img');
+        const urlInput = document.getElementById('url-input');
+        let url = "";
+
+        photoImg.onload = () => {
+            addSpan.style.display = 'none';
+            photoImg.style.display = 'block';
+            urlInput.value = url;
+        }
+
+        photoBtn.addEventListener('click', ()=>{
+            photoInput.click();
+        });
+
+        // When file changed, we will upload the photo
+        photoInput.addEventListener('change', (event)=>{
+            addSpan.innerHTML = 'Loading...';
+            
+            const file = event.target.files[0];
+            
+            const formData = new FormData()
+            formData.append('file', photoInput.files[0]);
+
+            fetch('/photo_upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then( response => {
+                if(!response.ok){
+                    throw new Error("Network response was not ok")
+                }
+                return response.json();
+            })
+            .then( data => {
+                console.log('data response', data);
+                
+                url = data.url;
+                photoImg.setAttribute('src', url);
+                
+
+            })
+            .catch( error => {
+                console.error('Error on uploading file', error);
+            });
+        });
+
+    </script>
+
+{% endblock %}
