@@ -21,7 +21,21 @@ init_tables()
 def index():
     
     photos = photos_db.find()
+    photos_db.close()
 
+    if 'id' in session:
+        photos_likes_ids = likes_db.photos_ids_by_userlike_it(session['id'])
+        photos_likes_ids = list(map( lambda x: x[0], photos_likes_ids ))
+        print(f"photos likes ids: {photos_likes_ids}")
+        for i, photo in enumerate(photos):
+            # Si el id de la photo está en la lista de photos likes
+            if photo[0] in photos_likes_ids:
+                photos[i] = photos[i] + (True,)
+            else:
+                photos[i] = photos[i] + (False,)
+
+       
+    print(f"photos: {photos}")
     return render_template('index.html', session=session, photos=photos)
 
 
@@ -201,13 +215,27 @@ def photo_upload():
 def like_it(photo_id):
 
     if not 'id' in session:
-        return "You need to be logged"
+        return jsonify({"msg": "You need to be logged"})
     
     user_id = session['id']
 
     id = likes_db.like_it(user_id, photo_id)
+    likes_db.close()
 
     return jsonify({"id": id, "msg": f"Created ok user {user_id}, photo {photo_id}"})
+
+@app.route('/unlike_it/<photo_id>', methods = ['GET'])
+def unlike_it(photo_id):
+
+    if not 'id' in session:
+        return jsonify({"msg": "You need to be logged"})
+    
+    user_id = session['id']
+
+    res = likes_db.unlike_it(user_id, photo_id)
+    likes_db.close()
+
+    return jsonify({"res": res, "msg": f"Unliked ok user {user_id}, photo {photo_id}"})
 
 
 

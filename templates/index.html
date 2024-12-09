@@ -5,10 +5,81 @@
 {% endblock %}
 
 {% block main %}
+
+    <script src="/static/js/TranslateDate.js"></script>
    
+    <script>
+        
+        let countSpan;
+        let unlikeString = '<img src="/static/images/icons/thumb-up-fill.svg">'
+        let likeString = '<img src="/static/images/icons/thumb-up-line.svg">'
+        
+    
+
+
+        function likeIt(el){
+            
+            console.log(el.dataset.photo);
+            
+            fetch(`/like_it/${el.dataset.photo}`)
+                .then( response => {
+                    return response.json();
+                })
+                .then( data => {
+                    countSpan = document.getElementById(el.dataset.photo);
+                    countSpan.innerHTML = Number(countSpan.innerHTML) + 1;
+                    
+                    console.log(data);
+                    el.classList.remove('like-button');
+                    //el.innerHTML = '👎🏼';
+                    el.innerHTML = unlikeString;
+                    el.classList.add('unlike-button');
+                    el.onclick = () => {
+                        unlikeIt(el);
+                    }
+                });
+                
+        }
+
+        function unlikeIt(el){
+            console.log(el.dataset.photo);
+
+            fetch(`/unlike_it/${el.dataset.photo}`)
+                .then( response => {
+                    return response.json();
+                })
+                .then( data => {
+                    countSpan = document.getElementById(el.dataset.photo);
+                    countSpan.innerHTML = Number(countSpan.innerHTML) - 1;
+
+                    console.log(data);
+                    el.classList.remove('unlike-button');
+                    //el.innerHTML = '👍🏼';
+                    el.innerHTML = likeString;
+                    el.classList.add('like-button');
+                    el.onclick = () => {
+                        likeIt(el);
+                    }
+                });
+        }
+
+        window.addEventListener('DOMContentLoaded', ()=>{
+            console.log('Document content loaded'); 
+            const translateDate = new TranslateDate();
+            const dateSpans = document.querySelectorAll('.date-span');
+
+            for(const span of dateSpans){
+                console.log(span.dataset.date);
+                const strDate = translateDate.getStringDate(new Date(span.dataset.date).getTime());
+                span.innerHTML = strDate;
+            }
+
+        });
+
+    </script>
     
     <div class="flex">
-
+       
         <div class="flex flex-grow">
             
             <!-- ORDER -->
@@ -42,11 +113,26 @@
                 </div>
                 
                 <div class="p-2 flex justify-between items-center">
-                    <button class="bg-purple-100 p-2 like-button" data-photo={{photo[0]}}>
-                        Like it 0
-                    </button>
-                    <span>
-                        {{photo[1]}}
+                    
+                    <div class="flex items-center like-button-divs">
+                        
+                        {% if photo[6] %}
+                            <button class="unlike-button" data-photo={{photo[0]}} onclick="unlikeIt(this)">                        
+                                <img src="/static/images/icons/thumb-up-fill.svg">
+                            </button>
+                        {% else %}
+                            <button class="like-button" data-photo={{photo[0]}} onclick="likeIt(this)">                        
+                                <img src="/static/images/icons/thumb-up-line.svg">
+                            </button>                        
+                        {% endif %}
+                    
+                        <span id={{photo[0]}} class="ml-3 font-semibold count-likes-spans">
+                            {{photo[5]}}
+                        </span>
+                    </div>
+
+                    <span class="date-span" data-date="{{photo[1]}}">
+                        
                     </span>
                 </div>
 
@@ -61,23 +147,27 @@
 
     <script defer>
 
-        const likeButtons = document.querySelectorAll('.like-button');
+        // const likeButtons = document.querySelectorAll('.like-button');
 
-        for(const btn of likeButtons){
-            btn.addEventListener('click', ()=>{
-                console.log("Like it!", btn.dataset.photo);
+        // for(const btn of likeButtons){
+        //     btn.addEventListener('click', ()=>{
+        //         console.log("Like it!", btn.dataset.photo);
 
-                fetch(`/like_it/${btn.dataset.photo}`)
-                    .then( response => {
-                        return response.json()
-                    })
-                    .then( data => {
-                        console.log(data);
-                    });
+        //         fetch(`/like_it/${btn.dataset.photo}`)
+        //             .then( response => {
+        //                 return response.json()
+        //             })
+        //             .then( data => {
+        //                 console.log(data);
+        //             });
 
-            });
-        }
+        //     });
+        // }
+        
+        
       
     </script>
+
+    
 
 {% endblock %}

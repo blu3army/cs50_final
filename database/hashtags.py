@@ -19,7 +19,7 @@ class HashtagsDB():
 
         for title in data:
             try:
-                self.cur.execute("INSERT INTO hashtags (title) VALUES (?)",  (title,))
+                self.cur.execute("INSERT INTO hashtags (title) VALUES (?)",  (title.lower(),))
                 successful_list.append(title)
             except sqlite3.IntegrityError as e:
 

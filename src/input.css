@@ -20,3 +20,12 @@
     width: 100%;
     height: 100%; 
 }
+
+
+.like-button {
+    @apply p-2;    
+}
+
+.unlike-button {
+    @apply bg-purple-100 text-white p-2 rounded-md;
+}
