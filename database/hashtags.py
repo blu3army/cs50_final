@@ -12,6 +12,31 @@ class HashtagsDB():
         self.cur.close()
         self.con.close()
 
+
+    def get_tops(self):
+        self.connect()
+
+        results = self.cur.execute("""
+                        SELECT hashtags.title, COUNT(hashtag_id) 
+                        FROM hashtags_photos 
+                        JOIN hashtags ON hashtag_id = hashtags.id 
+                        GROUP BY hashtag_id 
+                        ORDER BY COUNT(hashtag_id) 
+                        DESC LIMIT 5;
+                        """)
+
+        return results.fetchall()
+    
+
+    
+    def get_by_text(self, text):
+        self.connect()
+
+        results = self.cur.execute("SELECT title FROM hashtags WHERE title LIKE ? LIMIT 10;", ('%' + text + '%',))
+
+        return results.fetchall()
+
+
     def insert_many(self, data):
         self.connect()
 

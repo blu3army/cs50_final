@@ -20,14 +20,48 @@ class PhotosDB():
         
         return self.cur.lastrowid
 
-    def find(self):
+    def find(self, order = 'date', trendtime = 'alltimes'):
+        # allowed_columns = ['photos.created_at', 'COUNT(likes.id)']
+        # if order_by not in allowed_columns:
+        #     order_by = 'photos.created_at'
 
+
+        order_by = 'photos.created_at' if order == 'date' else 'COUNT(likes.id)'
+        
         self.connect()
 
-        #results = self.cur.execute("SELECT * FROM photos ORDER BY created_at DESC")
-        results = self.cur.execute("SELECT photos.id, photos.created_at, photos.url, photos.caption, photos.user_id, COUNT(likes.id) FROM photos LEFT JOIN likes ON photos.id = likes.photo_id GROUP BY photos.id ORDER BY photos.created_at DESC")
+        if trendtime == 'alltimes' or order == 'date':
+            #results = self.cur.execute("SELECT * FROM photos ORDER BY created_at DESC")
+            results = self.cur.execute(f"SELECT photos.id, photos.created_at, photos.url, photos.caption, photos.user_id, COUNT(likes.id) FROM photos LEFT JOIN likes ON photos.id = likes.photo_id GROUP BY photos.id ORDER BY {order_by} DESC")
 
-        return results.fetchall()
+            return results.fetchall()
+
+        else:
+
+            time_start = ('now', '-1 month')
+            time_end = ('now')
+
+            match trendtime:
+                case 'weekly':
+                    time_start = ('now','-7 days')
+                    time_end = ('now')                                
+                case 'yearly':
+                    time_start = ('now', '-1 year')
+                    time_end = ('now')
+
+            results = self.cur.execute(f"""
+                                       SELECT photos.id, photos.created_at, photos.url, photos.caption, photos.user_id, COUNT(likes.id) 
+                                       FROM photos 
+                                       LEFT JOIN likes ON photos.id = likes.photo_id 
+                                       GROUP BY photos.id 
+                                       HAVING created at >= ? AND created_at < ?
+                                       ORDER BY {order_by} DESC
+                                       """, (time_start, time_end))
+
+            return results.fetchall()
+
+
+
 
     
 

@@ -14,19 +14,29 @@ app.secret_key = b'9585a2ee9ee6044d1e0ba57e366f40d98961cc169f326c80c896d97fcf903
 
 # basedir = os.path.abspath(os.path.dirname(__file__))
 
-init_tables()
-#check_tables()
 
 @app.route("/")
 def index():
     
-    photos = photos_db.find()
+    # Get parameters
+    # order
+    # trendtime
+    # hashtag 
+    
+    order = request.args.get('order') or 'date' # likes or date
+    trendtime = request.args.get('trendtime') or 'alltimes' # weekly, montly, yearly or alltimes
+    hashtag = request.args.get('hashtag') or None
+
+    print(order, trendtime, hashtag)
+
+    
+    photos = photos_db.find(order=order)
     photos_db.close()
 
     if 'id' in session:
         photos_likes_ids = likes_db.photos_ids_by_userlike_it(session['id'])
         photos_likes_ids = list(map( lambda x: x[0], photos_likes_ids ))
-        print(f"photos likes ids: {photos_likes_ids}")
+        # print(f"photos likes ids: {photos_likes_ids}")
         for i, photo in enumerate(photos):
             # Si el id de la photo está en la lista de photos likes
             if photo[0] in photos_likes_ids:
@@ -35,8 +45,31 @@ def index():
                 photos[i] = photos[i] + (False,)
 
        
-    print(f"photos: {photos}")
-    return render_template('index.html', session=session, photos=photos)
+    #print(f"photos: {photos}")
+    return render_template('index.html', session=session, photos=photos, order=order, trendtime=trendtime)
+
+# HASHTAGS
+@app.route('/top_hashtags')
+def top_hashtags():
+
+    results = hashtags_db.get_tops()
+    hashtags_db.close()
+
+    hashtags = list( map( lambda x: {'title': x[0], 'count': x[1]}, results) )
+
+    return jsonify({"hashtags": hashtags})
+
+
+@app.route('/search_hashtag/<text>')
+def search_hashtag(text):
+
+    results = hashtags_db.get_by_text(text.lower())
+    hashtags_db.close()
+
+    hashtags = list( map( lambda x: {'title': x[0]}, results) )
+
+
+    return jsonify({"hashtags": hashtags})
 
 
 
@@ -60,21 +93,21 @@ def sign_up():
         # Chequeamos si no existe username
 
         # Chequeamos que ambos passwords sean iguales
-        res = users_db.create_user(username, password)
+        id = users_db.create_user(username, password)
         users_db.close()
         # Create user
-        if res:
+        if id > 0:
             # Get the user's ID for session
             res = users_db.user_by_username(username)
             users_db.close()
 
-            session['id'] = res[0]
+            session['id'] = id
             session['username'] = res[3]
+
             return redirect("/")
         else:
             return redirect("/sign_up")
         
-
 
 @app.route("/sign_in", methods=['GET', 'POST'])
 def sign_in():
@@ -166,8 +199,6 @@ def photo_new():
         )
 
         return redirect(f'/photo/{photo_id}')
-
-
        
 
 @app.route('/photo_upload', methods = ['POST'])
@@ -239,6 +270,17 @@ def unlike_it(photo_id):
 
 
 
+
+
+# CONFIGURATIONS
+
+
+@app.route('/init_database')
+def init_database():
+    
+    init_tables()
+
+    return redirect('/')
 
 @app.route("/api/users")
 def get_users():

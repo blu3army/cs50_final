@@ -78,36 +78,59 @@
 
     </script>
     
-    <div class="flex">
+    <div class="flex relative">
        
         <div class="flex flex-grow">
             
             <!-- ORDER -->
-            <select class="text-sm p-2 rounded-md bg-white-100 border border-purple-300 outline-none">
-                <option>Recently</option>
-                <option>Most liked</option>
+            <select id="order-select" class="text-sm p-2 rounded-md bg-white-100 border border-purple-300 outline-none">
+                <option id="date-option" value="date">Recently</option>
+                <option id="likes-option" value="likes">Most liked</option>
             </select>
             
             <!-- TREND TIME -->
-            <select class="text-sm p-2 rounded-md bg-white-100 border border-purple-300 outline-none ml-2">
-                <option>Weekly</option>
-                <option>Monthly</option>
-                <option>Yearly</option>
-                <option>All times</option>
+            <select id="trendtime-select"  
+                    class="text-sm p-2 rounded-md bg-white-100 border border-purple-300 outline-none ml-1" 
+                    style="display: none;">
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+                <option value="alltimes">All times</option>
             </select>
         </div>
 
 
         <!-- FILTER -->
-        <input class="text-sm p-2 rounded-md bg-white-100 border border-purple-300 outline-none" type="text" placeholder="🔍 Search by hashtag">
+        <input id="hashtag-input" class="text-sm p-2 w-1/3 rounded-md bg-white-100 border border-purple-300 outline-none" type="text" placeholder="🔍 by hashtag">
 
+        <div id="hashtags-div" class="absolute bg-white w-full z-30 top-11 rounded-lg shadow-lg" style="display: none; min-height: 300px;">
+            <div class="flex">
+
+                <div class="w-1/2">
+                    <h3 class="text-2xl p-2">Search 🔍</h3>
+
+                    <ul id="searched-hashtags-ul" class="p-4">
+
+                    </ul>
+    
+                </div>
+
+                <div class="w-1/2">
+                    <h3 class="text-2xl p-2">Tops #</h3>
+
+                    <ul id="top-hashtags-ul" class="p-4">
+
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 
     
 
     <ul class="py-5">
         {% for photo in photos %}
-            <li class="mb-10 bg-white">
+            <li class="mb-10 bg-white rounded-lg">
                 <div class="aspect-ratio-container">
                     <img src={{photo[2]}} class="object-cover rounded-lg">
                 </div>
@@ -131,7 +154,7 @@
                         </span>
                     </div>
 
-                    <span class="date-span" data-date="{{photo[1]}}">
+                    <span class="date-span text-sm text-stone-500" data-date="{{photo[1]}}">
                         
                     </span>
                 </div>
@@ -147,23 +170,123 @@
 
     <script defer>
 
-        // const likeButtons = document.querySelectorAll('.like-button');
-
-        // for(const btn of likeButtons){
-        //     btn.addEventListener('click', ()=>{
-        //         console.log("Like it!", btn.dataset.photo);
-
-        //         fetch(`/like_it/${btn.dataset.photo}`)
-        //             .then( response => {
-        //                 return response.json()
-        //             })
-        //             .then( data => {
-        //                 console.log(data);
-        //             });
-
-        //     });
-        // }
+        const order = "{{ order }}"
+        const trendtime = "{{ trendtime }}"
         
+        const orderSelect = document.getElementById('order-select');
+        const trendtimeSelect = document.getElementById('trendtime-select');
+        const dateOption = document.getElementById('date-option');
+        const likesOption = document.getElementById('likes-option'); 
+        
+        const debouncerSeconds = 500;
+        const hashtagInput = document.getElementById('hashtag-input');
+        const hashtagsDiv = document.getElementById('hashtags-div');
+        const topHashtagsUl = document.getElementById('top-hashtags-ul');
+        const searchedHashtagsUl = document.getElementById('searched-hashtags-ul');
+        
+
+        //Mostrar el select trendtime si se eligio likes
+        preparingElements();
+
+        orderSelect.addEventListener('change', (e)=>{
+            const assignOrder = e.target.value;
+
+            if(assignOrder === 'date'){
+                location.assign(`/?trendtime=${trendtime}`);
+            }
+            else {
+                location.assign(`/?order=likes&trendtime=${trendtime}`);
+            }
+
+        });
+
+        trendtimeSelect.addEventListener('change', e =>{
+            const assignTrendtime = e.target.value;
+            location.assign(`/?order=${order}&trendtime=${assignTrendtime}`);
+        });
+        
+
+
+
+        let status = false; // false is close, true is open. We use it for avoid multiple gets to hashtags tops
+        let timer; //debouncer
+
+        hashtagInput.addEventListener('input', e => {
+            const text = e.target.value;
+
+            if(text.length >= 3){
+
+                if(!status){
+                    //clean ul 
+                    topHashtagsUl.innerHTML = '';
+                    
+                    fetch('/top_hashtags')
+                        .then( res => res.json() )
+                        .then( data => {
+                            //console.log(data)
+                            status = true;
+                            for(const hashtag of data.hashtags){
+                                const li = document.createElement('li');
+                                li.innerHTML = `<a href="/${hashtag.title}" class="text-blue-500">#${hashtag.title} (${hashtag.count})</a>`
+                                topHashtagsUl.appendChild(li);
+                            }
+                        });
+                }
+                
+                //Exec debouncer
+                clearTimeout(timer);
+                timer = setTimeout(()=>{
+                    //clean ul 
+                    searchedHashtagsUl.innerHTML = '';
+
+                    fetch('/search_hashtag/'+text)
+                        .then( res => res.json() )
+                        .then( data => {
+
+                            for(const hashtag of data.hashtags){
+                                const li = document.createElement('li');
+                                li.innerHTML = `<a href="/${hashtag.title}" class="text-blue-500">#${hashtag.title}</a>`
+                                searchedHashtagsUl.appendChild(li);
+                            }
+                            
+                        });
+                    
+
+                }, debouncerSeconds);
+
+
+                hashtagsDiv.style.display = 'block';
+            }
+            else {
+                searchedHashtagsUl.innerHTML = '';
+                hashtagsDiv.style.display = 'none';
+                status = false;
+            }
+        });
+
+
+
+
+
+        function preparingElements(){
+            // Hacemos aparecer el select de trendtime
+            // Default option selected
+            
+            if(order === 'likes'){
+                likesOption.selected = true;
+                trendtimeSelect.style.display = 'inline';
+            }
+            else {
+                dateOption.selected = true;
+            }
+
+            //Refresh trendtime select to option selected
+            for(const opt of trendtimeSelect){
+                if(opt.value === trendtime){
+                    opt.selected = true;
+                }
+            }
+        }
         
       
     </script>

@@ -18,18 +18,16 @@ class TranslateDate {
 
     if (diff <= 24) {
       if (diff < 1 && diff > 0.02) {
-        return `hace ${ Math.round(diff * 60) } minutos`;
+        return `${ Math.round(diff * 60) } minutes ago`;
       } 
       else if(diff <= 0.02){
-        return 'recién';
+        return 'recently';
       }
       else {
-        return `hace ${Math.round(diff)} horas`;
+        return `${Math.round(diff)} hours ago`;
       }
     } else {
-      return `El ${this.getDay()} ${
-        this.date.getDate()
-      } de ${this.getMonth()} ${this.date.getFullYear()}`;
+      return `${this.getDay()} ${this.getMonth()} ${this.date.getDate()},  ${this.date.getFullYear()}`;
     }
   }
 
@@ -41,65 +39,65 @@ class TranslateDate {
   getDay() {
     switch (this.date.getDay()) {
       case 0:
-        return "domingo";
+        return "sunday";
 
       case 1:
-        return "lunes";
+        return "monday";
 
       case 2:
-        return "martes";
+        return "tuesday";
 
       case 3:
-        return "miércoles";
+        return "wednesday";
 
       case 4:
-        return "jueves";
+        return "thursday";
 
       case 5:
-        return "viernes";
+        return "friday";
 
       case 6:
-        return "sábado";
+        return "saturday";
     }
   }
 
   getMonth() {
     switch (this.date.getMonth()) {
       case 0:
-        return "enero";
+        return "january";
 
       case 1:
-        return "febrero";
+        return "february";
 
       case 2:
-        return "marzo";
+        return "march";
 
       case 3:
-        return "abril";
+        return "april";
 
       case 4:
-        return "mayo";
+        return "may";
 
       case 5:
-        return "junio";
+        return "june";
 
       case 6:
-        return "julio";
+        return "july";
 
       case 7:
-        return "agosto";
+        return "august";
 
       case 8:
-        return "septiembre";
+        return "september";
 
       case 9:
-        return "octubre";
+        return "october";
 
       case 10:
-        return "noviembre";
+        return "november";
 
       case 11:
-        return "diciembre";
+        return "december";
     }
   }
 }

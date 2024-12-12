@@ -14,6 +14,7 @@
         </p>
 
         {% if session["id"] %}
+            <span class="font-semibold">{{session['username']}}</span>
             <a href="/photo_new" class="p-2 bg-orange-200 font-semibold mx-2 rounded-md">Upload</a>
             <a href="/sign_out" class="p-2 bg-rose-200 font-semibold mx-2 rounded-md">Sign out</a>
         {% else %}

@@ -24,7 +24,7 @@ class UsersDB():
             self.con.commit()
             
             # rowcount es 1 en caso de inserción exitosa
-            return self.cur.rowcount > 0
+            return self.cur.lastrowid
         
 
     def users(self):
