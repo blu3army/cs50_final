@@ -63,14 +63,15 @@ class HashtagsDB():
         ids_list = []
 
         for title in hashtags:
-            res = self.cur.execute("SELECT id FROM hashtags WHERE title = ?",  (title,))
-            id = res.fetchone()[0]
-            ids_list.append(id)
+            try:
+                res = self.cur.execute("SELECT id FROM hashtags WHERE title = ?",  (title,))
+                id = res.fetchone()[0]
+                ids_list.append(id)
+            except Exception as e:
+                print(f'Exception when get hashtag id', e)
 
         return ids_list
     
-
-
     
     def create_photo_hashtags(self, photo_id, hashtags_ids_list):
         self.connect()

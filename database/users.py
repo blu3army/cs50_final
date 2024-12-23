@@ -91,7 +91,7 @@ def init_tables():
                     url VARCHAR,
                     caption TEXT,
                     user_id INTEGER NOT NULL,
-                    FOREIGN KEY(user_id) REFERENCES users(id)
+                    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
                 );''')
     
     # ON DELETE SET NULL    Sets department_id to NULL when parent is deleted
@@ -105,8 +105,8 @@ def init_tables():
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     user_id INTEGER NOT NULL,
                     photo_id INTEGER NOT NULL,
-                    FOREIGN KEY(user_id) REFERENCES users(id),
-                    FOREIGN KEY(photo_id) REFERENCES photos(id),
+                    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+                    FOREIGN KEY(photo_id) REFERENCES photos(id) ON DELETE CASCADE,
                     UNIQUE(user_id, photo_id)
     );''')
 
@@ -122,8 +122,8 @@ def init_tables():
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     photo_id INTEGER NOT NULL,
                     hashtag_id INTEGER NOT NULL,
-                    FOREIGN KEY (photo_id) REFERENCES photos(id),
-                    FOREIGN KEY (hashtag_id) REFERENCES hashtags(id),
+                    FOREIGN KEY (photo_id) REFERENCES photos(id) ON DELETE CASCADE,
+                    FOREIGN KEY (hashtag_id) REFERENCES hashtags(id) ON DELETE CASCADE,
                     UNIQUE(photo_id, hashtag_id)
                 );''')
 

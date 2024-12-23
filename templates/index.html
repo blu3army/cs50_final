@@ -14,9 +14,6 @@
         let unlikeString = '<img src="/static/images/icons/thumb-up-fill.svg">'
         let likeString = '<img src="/static/images/icons/thumb-up-line.svg">'
         
-    
-
-
         function likeIt(el){
             
             console.log(el.dataset.photo);
@@ -78,6 +75,9 @@
 
     </script>
     
+
+    <!-- FILTERS -->
+    
     <div class="flex relative">
        
         <div class="flex flex-grow">
@@ -101,32 +101,57 @@
 
 
         <!-- FILTER -->
-        <input id="hashtag-input" class="text-sm p-2 w-1/3 rounded-md bg-white-100 border border-purple-300 outline-none" type="text" placeholder="🔍 by hashtag">
+        {% if hashtag %}
+            <p class="flex items-center bg-purple-200 p-2 rounded-lg">
+                
+                <span class="font-semibold text-sm">
+                    #{{hashtag}}
+                </span>
 
-        <div id="hashtags-div" class="absolute bg-white w-full z-30 top-11 rounded-lg shadow-lg" style="display: none; min-height: 300px;">
-            <div class="flex">
+                <a href="/" class="bg-stone-300 ml-2 w-6 h-6 rounded-full text-center">
+                    X
+                </a>
+            </p>
+        {% else %}
+            <input id="hashtag-input" class="text-sm p-2 w-1/3 rounded-md bg-white-100 border border-purple-300 outline-none" type="text" placeholder="🔍 by hashtag">
 
-                <div class="w-1/2">
-                    <h3 class="text-2xl p-2">Search 🔍</h3>
+            <div id="hashtags-div" class="absolute bg-white w-full z-30 top-11 rounded-lg shadow-lg" style="display: none; min-height: 300px;">
+                <div class="flex">
 
-                    <ul id="searched-hashtags-ul" class="p-4">
+                    <div class="w-1/2">
+                        <h3 class="text-2xl p-2">Search 🔍</h3>
 
-                    </ul>
-    
-                </div>
+                        <ul id="searched-hashtags-ul" class="p-4">
 
-                <div class="w-1/2">
-                    <h3 class="text-2xl p-2">Tops #</h3>
+                        </ul>
+        
+                    </div>
+                    
+                    <div class="w-1/2">
 
-                    <ul id="top-hashtags-ul" class="p-4">
+                    
+                        
+                        <h3 class="text-2xl p-2">Tops #</h3>
 
-                    </ul>
+                        <ul id="top-hashtags-ul" class="p-4">
+
+                        </ul>
+
+                    
+                    </div>
+
+
+                    <!-- Absolute -->
+                    <button id="close-hashtags-ul-btn" class="absolute bg-stone-200 text-stone-500 rounded-full right-1 top-1 w-8 h-8 font-semibold">
+                        X
+                    </button>
                 </div>
             </div>
-        </div>
+        {% endif %}
     </div>
 
     
+    <!-- PHOTOS -->
 
     <ul class="py-5">
         {% for photo in photos %}
@@ -183,6 +208,7 @@
         const hashtagsDiv = document.getElementById('hashtags-div');
         const topHashtagsUl = document.getElementById('top-hashtags-ul');
         const searchedHashtagsUl = document.getElementById('searched-hashtags-ul');
+        const closeHashtagsUlBtn = document.getElementById('close-hashtags-ul-btn');
         
 
         //Mostrar el select trendtime si se eligio likes
@@ -223,12 +249,23 @@
                     fetch('/top_hashtags')
                         .then( res => res.json() )
                         .then( data => {
-                            //console.log(data)
+                            
                             status = true;
+                            
+                            let url = location.search.substring(1) === '' 
+                                        ? []
+                                        : location.search.substring(1).split("&");
+                            
+                            url = url.filter( (path) => !path.includes('hashtag')  );
+                            
                             for(const hashtag of data.hashtags){
+                                url.push(`hashtag=${hashtag.title}`);      
+
                                 const li = document.createElement('li');
-                                li.innerHTML = `<a href="/${hashtag.title}" class="text-blue-500">#${hashtag.title} (${hashtag.count})</a>`
+                                li.innerHTML = `<a href="/?${url.join('&')}" class="text-blue-500">#${hashtag.title} (${hashtag.count})</a>`
                                 topHashtagsUl.appendChild(li);
+
+                                url.pop();
                             }
                         });
                 }
@@ -243,10 +280,21 @@
                         .then( res => res.json() )
                         .then( data => {
 
+                            let url = location.search.substring(1) === '' 
+                                        ? []
+                                        : location.search.substring(1).split("&"); 
+
+                            url = url.filter( (path) => !path.includes('hashtag')  );
+
                             for(const hashtag of data.hashtags){
+                                
+                                url.push(`hashtag=${hashtag.title}`);                                
+                                
                                 const li = document.createElement('li');
-                                li.innerHTML = `<a href="/${hashtag.title}" class="text-blue-500">#${hashtag.title}</a>`
+                                li.innerHTML = `<a href="/?${url.join('&')}" class="text-blue-500">#${hashtag.title}</a>`
                                 searchedHashtagsUl.appendChild(li);
+
+                                url.pop();
                             }
                             
                         });
@@ -264,9 +312,26 @@
             }
         });
 
+        closeHashtagsUlBtn.addEventListener('click', ()=>{
+            //clean ul 
+            closeHashtagsDiv();
+        });
 
 
+        document.addEventListener('keydown',(e)=>{
+            //In case to press ESC
+            if(e.keyCode == 27){
+                closeHashtagsDiv();
+            }
 
+        });
+
+        function closeHashtagsDiv(){
+            topHashtagsUl.innerHTML = '';
+            searchedHashtagsUl.innerHTML = '';
+            hashtagsDiv.style.display = 'none';
+            hashtagInput.value = '';
+        }
 
         function preparingElements(){
             // Hacemos aparecer el select de trendtime
@@ -288,7 +353,7 @@
             }
         }
         
-      
+       
     </script>
 
     
