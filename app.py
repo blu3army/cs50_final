@@ -22,6 +22,7 @@ def index():
     # order
     # trendtime
     # hashtag 
+    page = request.args.get('page') or '1'
     
     order = request.args.get('order') or 'date' # likes or date
     trendtime = request.args.get('trendtime') or 'alltimes' # weekly, montly, yearly or alltimes
@@ -29,7 +30,7 @@ def index():
 
     print(order, trendtime, hashtag)
 
-    photos = photos_db.find(order=order, trendtime=trendtime, hashtag=hashtag)
+    photos = photos_db.find(order=order, trendtime=trendtime, hashtag=hashtag, page= (int(page)-1))
 
     photos_db.close()
 
@@ -48,7 +49,7 @@ def index():
 
        
     #print(f"photos: {photos}")
-    return render_template('index.html', session=session, photos=photos, order=order, trendtime=trendtime, hashtag=hashtag)
+    return render_template('index.html', session=session, photos=photos, order=order, trendtime=trendtime, hashtag=hashtag, page=int(page))
 
 # HASHTAGS
 @app.route('/top_hashtags')

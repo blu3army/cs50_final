@@ -3,6 +3,7 @@ from datetime import datetime
 
 class PhotosDB():
     DATABASE = 'database/photofy.db'
+    LIMIT = 2
 
     def connect(self):
         self.con = sqlite3.connect(self.DATABASE)
@@ -20,18 +21,18 @@ class PhotosDB():
         
         return self.cur.lastrowid
 
-    def find(self, order = 'date', trendtime = 'alltimes', hashtag = None):
+    def find(self, order = 'date', trendtime = 'alltimes', hashtag = None, page = 1):
         # allowed_columns = ['photos.created_at', 'COUNT(likes.id)']
         # if order_by not in allowed_columns:
         #     order_by = 'photos.created_at'
+
+        offset = page * self.LIMIT
 
 
         order_by = 'photos.created_at' if order == 'date' else 'COUNT(likes.id)'
         
         self.connect()
-
-
-        
+       
         # In case is hashtag exists
         if hashtag:
             # SELECT * FROM photos JOIN hashtags_photos AS hp ON photos.id = hp.photo_id WHERE hp.hashtag_id = 18;
@@ -45,8 +46,10 @@ class PhotosDB():
                                        WHERE hp.hashtag_id = ?
                                        GROUP BY photos.id
                                        ORDER BY photos.created_at DESC
+                                       LIMIT ? 
+                                       OFFSET ?
                                        """, 
-                                       (hashtag_id.fetchone()[0],)
+                                       (hashtag_id.fetchone()[0], self.LIMIT, offset,)
                                     )
             
             return results.fetchall()
@@ -63,7 +66,9 @@ class PhotosDB():
                                        LEFT JOIN likes ON photos.id = likes.photo_id 
                                        GROUP BY photos.id 
                                        ORDER BY {order_by} DESC
-                                       """)
+                                       LIMIT ? 
+                                       OFFSET ?
+                                       """, (self.LIMIT, offset,))
 
             return results.fetchall()
 
@@ -89,7 +94,9 @@ class PhotosDB():
                                        GROUP BY photos.id 
                                        HAVING photos.created_at >= datetime(?, ?) AND photos.created_at < datetime(?)
                                        ORDER BY {order_by} DESC
-                                       """, (time_start[0], time_start[1], time_end[0],))
+                                       LIMIT ? 
+                                       OFFSET ?
+                                       """, (time_start[0], time_start[1], time_end[0], self.LIMIT, offset,))
 
             return results.fetchall()
 
