@@ -1,7 +1,7 @@
 from supabase import create_client, Client
 
 
-API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9idmJra2F2bWV4em16ZW9maXluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMzNzI5MjgsImV4cCI6MjA0ODk0ODkyOH0.pPkteDjg_jUsb6vgiWLjBl8AKE08UzSiIa9gsFvkLhk'
+API_KEY = SUPABASE_KEY
 
 URL = "https://obvbkkavmexzmzeofiyn.supabase.co"
 

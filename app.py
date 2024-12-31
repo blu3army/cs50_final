@@ -11,7 +11,7 @@ import uuid
 
 app = Flask(__name__)
 
-app.secret_key = b'9585a2ee9ee6044d1e0ba57e366f40d98961cc169f326c80c896d97fcf90381e'
+app.secret_key = SECRET_KEY
 #app.secret_key = os.getenv('SECRET_KEY')
 
 # basedir = os.path.abspath(os.path.dirname(__file__))
