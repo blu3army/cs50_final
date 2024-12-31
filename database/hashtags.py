@@ -2,7 +2,7 @@ import sqlite3
 
 
 class HashtagsDB():
-    DATABASE = 'database/photofy.db'
+    DATABASE = 'database/data/photofy.sqlite'
 
     def connect(self):
         self.con = sqlite3.connect(self.DATABASE)
@@ -12,6 +12,11 @@ class HashtagsDB():
         self.cur.close()
         self.con.close()
 
+    def hashtags(self):
+        self.connect()
+        res = self.cur.execute('SELECT * FROM hashtags')
+    
+        return res.fetchall()
 
     def get_tops(self):
         self.connect()

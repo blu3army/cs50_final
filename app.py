@@ -1,16 +1,17 @@
 from flask import Flask, session, render_template, redirect, request, jsonify
-from database.users import init_tables, users_db
 from services.supabase_init import supabase
+from database.users import users_db
 from database.photos import photos_db
 from database.hashtags import hashtags_db
 from database.likes import likes_db
+from database.init_database import init_tables
 import hashlib
 import re
 import uuid
 
 app = Flask(__name__)
 
-app.secret_key = '9585a2ee9ee6044d1e0ba57e366f40d98961cc169f326c80c896d97fcf90381e'
+app.secret_key = b'9585a2ee9ee6044d1e0ba57e366f40d98961cc169f326c80c896d97fcf90381e'
 #app.secret_key = os.getenv('SECRET_KEY')
 
 # basedir = os.path.abspath(os.path.dirname(__file__))
@@ -57,7 +58,6 @@ def index():
     
     #print(f"photos: {photos}")
     return render_template('index.html', session=session, photos=photos, order=order, trendtime=trendtime, hashtag=hashtag, page=int(page))
-
 
 
 @app.route('/user/<username>')
@@ -339,12 +339,9 @@ def unlike_it(photo_id):
 
 
 
-
-
 # CONFIGURATIONS
 
-
-@app.route('/init_database')
+@app.route('/api/init_database')
 def init_database():
     
     init_tables()
@@ -357,6 +354,24 @@ def get_users():
     users_db.close()
     print(res)
     return jsonify({'users': res})
+
+
+@app.route('/api/photos')
+def get_photos():
+    
+    res = photos_db.photos()
+    photos_db.close()
+    
+    return jsonify({'photos': res})
+
+
+@app.route('/api/hashtags')
+def get_hashtags():
+
+    res = hashtags_db.hashtags()
+    hashtags_db.close()
+
+    return jsonify({'hashtags': res})
 
 @app.route('/api/refresh_usernames')
 def refresh_usernames():

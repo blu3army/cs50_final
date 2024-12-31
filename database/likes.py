@@ -2,7 +2,7 @@ import sqlite3
 
 
 class LikesDB():
-    DATABASE = 'database/photofy.db'
+    DATABASE = 'database/data/photofy.sqlite'
 
     def connect(self):
         self.con = sqlite3.connect(self.DATABASE)

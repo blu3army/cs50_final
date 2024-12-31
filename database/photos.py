@@ -2,7 +2,7 @@ import sqlite3
 from datetime import datetime
 
 class PhotosDB():
-    DATABASE = 'database/photofy.db'
+    DATABASE = 'database/data/photofy.sqlite'
     LIMIT = 5
 
     def connect(self):
@@ -12,6 +12,13 @@ class PhotosDB():
     def close(self):
         self.cur.close()
         self.con.close()
+
+    def photos(self):
+        self.connect()
+        res = self.cur.execute('SELECT * FROM photos')
+    
+        return res.fetchall()
+
 
     def create_photo(self, url, caption, user_id):
         self.connect()
@@ -104,11 +111,6 @@ class PhotosDB():
 
             return results.fetchall()
 
-
-
-
-
-
     
     def find_by_user(self, username, page = 1):
 
@@ -130,11 +132,6 @@ class PhotosDB():
         return results.fetchall()
 
 
-    
-
-
-
-
     def refresh_usernames(self):
         self.connect()
 
@@ -152,6 +149,8 @@ class PhotosDB():
             self.cur.execute('UPDATE photos SET author_username = ? WHERE user_id = ?', (username, photo[1],))
 
         self.con.commit()
+
+
 
 
 photos_db = PhotosDB()
