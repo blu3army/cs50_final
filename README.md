@@ -4,7 +4,7 @@
 
 This is my CS50 final project, I designed and created a web application dedicated to photografy. It shows pictures that users upload and allow to ranking them by likes and sorting by hashtags. Photofy is a micro social network.
 
-I used Python to the backend with the framework Flask. Sqlite3 for database. The frontend was made with Flask, Jinja2, Vanilla JS and of course, HTML.
+I used Python for the backend with the framework Flask. Sqlite3 for database. The frontend was made with Flask, Jinja2, Vanilla JS and of course, HTML.
 
 **How Photofy works?**
 
