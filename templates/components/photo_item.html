@@ -1,0 +1,116 @@
+<script>
+    
+    let countSpan;
+    let unlikeString = '<img src="/static/images/icons/thumb-up-fill.svg">'
+    let likeString = '<img src="/static/images/icons/thumb-up-line.svg">'
+    
+    function likeIt(el){
+        
+        //console.log(el.dataset.photo);
+        
+        fetch(`/like_it/${el.dataset.photo}`)
+            .then( response => {
+                return response.json();
+            })
+            .then( data => {
+                countSpan = document.getElementById(el.dataset.photo);
+                countSpan.innerHTML = Number(countSpan.innerHTML) + 1;
+                
+                //console.log(data);
+                el.classList.remove('like-button');
+                //el.innerHTML = '👎🏼';
+                el.innerHTML = unlikeString;
+                el.classList.add('unlike-button');
+                el.onclick = () => {
+                    unlikeIt(el);
+                }
+            });
+            
+    }
+
+    function unlikeIt(el){
+        //console.log(el.dataset.photo);
+
+        fetch(`/unlike_it/${el.dataset.photo}`)
+            .then( response => {
+                return response.json();
+            })
+            .then( data => {
+                countSpan = document.getElementById(el.dataset.photo);
+                countSpan.innerHTML = Number(countSpan.innerHTML) - 1;
+
+                //console.log(data);
+                el.classList.remove('unlike-button');
+                //el.innerHTML = '👍🏼';
+                el.innerHTML = likeString;
+                el.classList.add('like-button');
+                el.onclick = () => {
+                    likeIt(el);
+                }
+            });
+    }
+
+    window.addEventListener('DOMContentLoaded', ()=>{
+        //console.log('Document content loaded'); 
+        const translateDate = new TranslateDate();
+        const dateSpans = document.querySelectorAll('.date-span');
+
+        for(const span of dateSpans){
+            //console.log(span.dataset.date);
+            const strDate = translateDate.getStringDate(new Date(span.dataset.date).getTime());
+            span.innerHTML = strDate;
+        }
+
+    });
+
+</script>
+
+<li class="mb-10 bg-white rounded-lg shadow-md">
+    
+    <!-- Image -->
+    <div class="aspect-ratio-container cursor-pointer">
+        <img id="img-{{photo[0]}}" src={{photo[2]}} class="object-cover rounded-t-lg imgs-main">
+    </div>
+    
+    <div class="p-2 flex justify-between items-center border-b border-stone-100">
+
+        <!-- Date -->
+        <span class="date-span text-sm text-stone-500 ml-2" data-date="{{photo[1]}}"></span>
+        
+        <div class="flex items-center like-button-divs">
+            
+            <!-- Likes buttons -->
+            {% if photo[7] %}
+                <button class="unlike-button" data-photo={{photo[0]}} onclick="unlikeIt(this)">                        
+                    <img src="/static/images/icons/thumb-up-fill.svg">
+                </button>
+            {% else %}
+                <button class="like-button" data-photo={{photo[0]}} onclick="likeIt(this)">                        
+                    <img src="/static/images/icons/thumb-up-line.svg">
+                </button>                        
+            {% endif %}
+            
+             <!-- Likes count -->
+            <span id={{photo[0]}} class="ml-3 mr-3 font-semibold text-purple-500 count-likes-spans">
+                {{photo[5]}}
+            </span>
+        </div>
+
+        
+    </div>
+
+    <div class="px-4 pt-3 pb-6 text-stone-600">
+        <!-- Username -->
+        {% if photo[6] %}
+            <a href="/user/{{photo[6]}}" class="hover:text-blue-600">
+                <p class="font-semibold pb-1">
+                    {{photo[6]}}
+                </p>
+            </a>
+        {% endif %}
+        
+        <!-- Description -->
+        {{photo[3]}}    
+    </div>
+
+</li>

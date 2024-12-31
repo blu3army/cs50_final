@@ -6,15 +6,15 @@
 
 {% block main %}
 
-    <form action="/sign_up" method="post" class="max-w-sm mx-auto">
-        <h1 class="text-6xl">Sign up</h1>
+    <form action="/sign_up" method="post" class="max-w-md mx-auto bg-white p-4 shadow-md rounded-lg">
+        <h1 class="text-4xl mb-5 text-center">Sign up</h1>
         
         <div class="my-3">
             <input  type="text" 
                     name="username" 
                     placeholder="Username"
                     minlength="4" 
-                    class="w-full bg-stone-200 border-stone-400 border p-2 rounded-md focus:bg-white">
+                    class="w-full simple-input">
         </div>
 
         <div class="my-3">
@@ -22,7 +22,7 @@
                     name="password" 
                     placeholder="Password"
                     minlength="4" 
-                    class="w-full bg-stone-200 border-stone-400 border p-2 rounded-md focus:bg-white">
+                    class="w-full simple-input">
         </div>
 
         <div class="my-3">
@@ -30,11 +30,11 @@
                     name="re_password" 
                     placeholder="Re type password" 
                     minlength="4"
-                    class="w-full bg-stone-200 border-stone-400 border p-2 rounded-md focus:bg-white">
+                    class="w-full simple-input">
         </div>
 
-        <div class="text-right">
-            <button class="px-10 py-2 font-semibold bg-blue-300 rounded-md">
+        <div class="text-right mt-10 mb-2">
+            <button class="button-3 w-32">
                 Register
             </button>
         </div>

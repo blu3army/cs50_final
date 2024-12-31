@@ -27,7 +27,7 @@ class TranslateDate {
         return `${Math.round(diff)} hours ago`;
       }
     } else {
-      return `${this.getDay()[0].toUpperCase()}${this.getDay().substring(1)} ${this.getMonth()[0].toUpperCase()}${this.getMonth().substring(1,3)} ${this.date.getDate()},  ${this.date.getFullYear()}`;
+      return `${this.getDay()[0].toUpperCase()}${this.getDay().substring(1,3)} ${this.getMonth()[0].toUpperCase()}${this.getMonth().substring(1,3)} ${this.date.getDate()},  ${this.date.getFullYear()}`;
     }
   }
 

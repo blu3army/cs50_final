@@ -4,13 +4,14 @@ from services.supabase_init import supabase
 from database.photos import photos_db
 from database.hashtags import hashtags_db
 from database.likes import likes_db
+import hashlib
 import re
 import uuid
 
-
 app = Flask(__name__)
 
-app.secret_key = b'9585a2ee9ee6044d1e0ba57e366f40d98961cc169f326c80c896d97fcf90381e'
+app.secret_key = '9585a2ee9ee6044d1e0ba57e366f40d98961cc169f326c80c896d97fcf90381e'
+#app.secret_key = os.getenv('SECRET_KEY')
 
 # basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -28,7 +29,7 @@ def index():
     trendtime = request.args.get('trendtime') or 'alltimes' # weekly, montly, yearly or alltimes
     hashtag = request.args.get('hashtag') or None
 
-    print(order, trendtime, hashtag)
+    #print(order, trendtime, hashtag)
 
     photos = photos_db.find(order=order, trendtime=trendtime, hashtag=hashtag, page= (int(page)-1))
 
@@ -47,9 +48,45 @@ def index():
             else:
                 photos[i] = photos[i] + (False,)
 
-       
+        likes_db.close()
+
+    # return jsonify({
+    #     'photos': photos
+    # })
+
+    
     #print(f"photos: {photos}")
     return render_template('index.html', session=session, photos=photos, order=order, trendtime=trendtime, hashtag=hashtag, page=int(page))
+
+
+
+@app.route('/user/<username>')
+def user(username):
+    page = request.args.get('page') or '1'
+
+    photos = photos_db.find_by_user( username=username, page= (int(page)-1))
+
+    photos_db.close()
+
+    if 'id' in session:
+        # Search likes by user
+        photos_likes_ids = likes_db.photos_ids_by_userlike_it(session['id'])
+        
+        photos_likes_ids = list(map( lambda x: x[0], photos_likes_ids ))
+        
+        for i, photo in enumerate(photos):
+            # Si el id de la photo está en la lista de photos likes
+            if photo[0] in photos_likes_ids:
+                photos[i] = photos[i] + (True,)
+            else:
+                photos[i] = photos[i] + (False,)
+
+        likes_db.close()
+
+
+
+    return render_template('profile.html', photos=photos, username=username, session=session, page=int(page))
+
 
 # HASHTAGS
 @app.route('/top_hashtags')
@@ -86,17 +123,31 @@ def sign_up():
     session.pop('username', None)
     
     if request.method == 'GET':
+        
         return render_template('sign_up.html')
     else:
         # Create User
         username = request.form['username']
         password = request.form['password']
-        re_password = password = request.form['re_password']
+        re_password = request.form['re_password']
 
         # Chequeamos si no existe username
-
+        if not username:
+            return 'Not username'
+        
+        if not password or not re_password:
+            return 'Not password'
+        
         # Chequeamos que ambos passwords sean iguales
-        id = users_db.create_user(username, password)
+        if password != re_password:
+            return 'Passwords must be equals'
+        
+        # Get hash value from password
+        hash_object = hashlib.sha256(password.encode())
+        hash_value = hash_object.hexdigest()
+
+       
+        id = users_db.create_user(username=username, hash_value=hash_value)
         users_db.close()
         # Create user
         if id > 0:
@@ -126,7 +177,17 @@ def sign_in():
         username = request.form['username']
         password = request.form['password']
 
-        res = users_db.user_by_username_password(username, password)
+        if not username:
+            return 'Require an username'
+        
+        if not password:
+            return 'Please type your password'
+        
+        # Get hash value from password
+        hash_object = hashlib.sha256(password.encode())
+        hash_value = hash_object.hexdigest()
+
+        res = users_db.user_by_username_password(username, hash_value)
 
         users_db.close()
 
@@ -297,6 +358,12 @@ def get_users():
     print(res)
     return jsonify({'users': res})
 
+@app.route('/api/refresh_usernames')
+def refresh_usernames():
+
+    #photos_db.refresh_usernames()
+
+    return jsonify({})
 
 @app.route("/api/user_by_username/<username>")
 def get_user(username):

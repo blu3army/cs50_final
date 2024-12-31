@@ -13,13 +13,19 @@
             </a>
         </p>
 
+
+        <a href="/" class="font-semibold mr-3 hover:text-blue-600">
+            Home
+        </a>
         {% if session["id"] %}
-            <span class="font-semibold">{{session['username']}}</span>
-            <a href="/photo_new" class="p-2 bg-orange-200 font-semibold mx-2 rounded-md">Upload</a>
-            <a href="/sign_out" class="p-2 bg-rose-200 font-semibold mx-2 rounded-md">Sign out</a>
+            <a href="/user/{{session['username']}}">
+                <span class="font-semibold hover:text-blue-600">@{{session['username']}}</span>
+            </a>
+            <a href="/photo_new" class="button-1 ml-3">Upload</a>
+            <a href="/sign_out" class="button-2 ml-3">Sign out</a>
         {% else %}
-            <a href="/sign_in" class="p-2 bg-rose-200 font-semibold mx-2 rounded-md">Sign in</a>
-            <a href="/sign_up" class="p-2 bg-rose-200 font-semibold mx-2 rounded-md">Sign up</a>
+            <a href="/sign_in" class="button-3 ml-3">Sign in</a>
+            <a href="/sign_up" class="button-3 ml-3">Sign up</a>
         {% endif %}
         
         

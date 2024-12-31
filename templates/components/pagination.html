@@ -1,0 +1,39 @@
+<ul class="text-xl text-stone-500 flex justify-center items-center bg-white rounded-xl p-4 mb-10 shadow-md">    
+    {% if page > 1 %}
+        <li class="w-2/5 flex justify-end">
+                    
+            <span class="mr-5">
+                <a href="/{% if username %}user/{{username}}{% endif %}?page=1{% if order == 'likes' %}&order={{order}}{% endif %}{% if order == 'likes' %}&trendtime={{trendtime}}{% endif %}{% if hashtag %}&hashtag={{hashtag}}{% endif %}">
+                    Start
+                </a>
+            </span>
+
+            <span>
+                <a href="/{% if username %}user/{{username}}{% endif %}?page={{page-1}}{% if order == 'likes' %}&order={{order}}{% endif %}{% if order == 'likes' %}&trendtime={{trendtime}}{% endif %}{% if hashtag %}&hashtag={{hashtag}}{% endif %}">
+                    Back
+                </a>
+            </span>
+        </li>
+    {% else %}
+        <li class="w-2/5"></li>
+    {% endif %}
+    
+        
+    <li class="text-center text-purple-500 font-semibold rounded-xl bg-purple-100 mx-5 w-10 h-10 flex items-center justify-center">
+        {{page}}
+    </li>
+
+    {% if photos|length > 0 %}
+
+        <li class="w-2/5">
+            <a href="/{% if username %}user/{{username}}{% endif %}?page={{page+1}}{% if order == 'likes' %}&order={{order}}{% endif %}{% if order == 'likes' %}&trendtime={{trendtime}}{% endif %}{% if hashtag %}&hashtag={{hashtag}}{% endif %}">
+                Next
+            </a>
+        </li>
+
+    {% else %}
+        <li class="w-2/5"></li>
+    {% endif %}
+    
+  
+</ul>

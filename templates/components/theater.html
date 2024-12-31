@@ -1,0 +1,30 @@
+<div id="div-theater" class="h-screen w-full fixed bg-stone-800  top-0 left-0" style="display: none;">
+    <div class="h-full flex items-center justify-center">
+        <img id="img-theater" src="" class="h-full object-contain">
+    </div>
+</div>
+
+
+<script defer>
+
+    const divTheater = document.getElementById('div-theater');
+    const imgTheater = document.getElementById('img-theater');
+    const imgs = document.querySelectorAll('.imgs-main');
+
+    for(const img of imgs){
+        img.addEventListener('click', (e)=>{
+            const url = e.target.src;
+
+            console.log(url);
+
+            imgTheater.src = url;    
+
+            divTheater.style.display = 'block';
+        });
+    }
+
+    divTheater.addEventListener('click', ()=>{
+        divTheater.style.display = 'none';
+        imgTheater.src = '';   
+    });
+</script>

@@ -12,15 +12,15 @@ class UsersDB():
         self.cur.close()
         self.con.close()
 
-    def create_user(self, username, password):
+    def create_user(self, username, hash_value):
         self.connect()
 
-        if not username or not password:
+        if not username or not hash_value:
         
             return False
         else:
        
-            self.cur.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, password))
+            self.cur.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, hash_value))
             self.con.commit()
             
             # rowcount es 1 en caso de inserción exitosa
@@ -40,13 +40,14 @@ class UsersDB():
 
         return res.fetchone()
 
-    def user_by_username_password(self, username, password):
+    def user_by_username_password(self, username, hash_value):
         self.connect()
         
-        res = self.cur.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password,))
+        res = self.cur.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, hash_value,))
 
         return res.fetchone()
         
+
 
 
 users_db = UsersDB()
